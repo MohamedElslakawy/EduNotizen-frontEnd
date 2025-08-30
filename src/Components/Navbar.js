@@ -16,7 +16,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 import Brightness4Icon from "@mui/icons-material/Brightness4";
 import Brightness7Icon from "@mui/icons-material/Brightness7";
 import { useAuth } from "../context/AuthContext";
-import nmicIcon from "../assets/iconNM.png";
+import nmicIcon from "../assets/edunotic.png";
 import SearchBar from "./Notes/SearchBar";
 import { logoutUser } from "../api";
 
