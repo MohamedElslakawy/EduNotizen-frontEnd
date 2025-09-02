@@ -1,149 +1,188 @@
-// Importiere benötigte Bibliotheken und Komponenten
-import React, { useState, useEffect } from "react";
 import {
-  TextField,
+  Alert,
   Button,
+  Container,
+  Grid,
   IconButton,
   InputAdornment,
-  Typography,
-  Container,
   Paper,
-  Grid,
   Snackbar,
-  Alert,
-} from "@mui/material";
-import { styled } from "@mui/system";
-import { FaEye, FaEyeSlash, FaLock, FaUser } from "react-icons/fa";
-import { useNavigate, NavLink } from "react-router-dom"; // Importiere NavLink für das Routing
-import { jwtDecode } from "jwt-decode";
-import { loginUser } from "../../api";
-import { useAuth } from "../../context/AuthContext";
+  TextField,
+  Typography,
+} from '@mui/material';
+import { styled } from '@mui/system';
+import { jwtDecode } from 'jwt-decode';
+import React, { useEffect, useState } from 'react';
+import { FaEye, FaEyeSlash, FaLock, FaUser } from 'react-icons/fa';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { loginUser } from '../../api';
+import { useAuth } from '../../context/AuthContext';
 
 // Styled Components für das Design von Paper und Formular
 const StyledPaper = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(4),
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
-  maxWidth: "400px",
-  margin: "auto",
-  marginTop: theme.spacing(8),
-  borderRadius: "12px",
-  boxShadow: "0 3px 10px rgba(0, 0, 0, 0.2)",
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  maxWidth: '400px',
+  margin: 'auto',
+  marginTop: theme.spacing(2),
+  borderRadius: '12px',
+  boxShadow: '0 3px 10px rgba(0, 0, 0, 0.2)',
+  position: 'relative',
+  overflow: 'hidden',
 }));
 
-const Form = styled("form")(({ theme }) => ({
-  width: "100%",
+const StyledForm = styled('form')(({ theme }) => ({
+  width: '100%',
   marginTop: theme.spacing(1),
 }));
 
+const Blob = styled('div')({
+  position: 'absolute',
+  top: '-50px',
+  left: '-50px',
+  width: '280px',
+  height: '220px',
+  background: 'linear-gradient(135deg, #1E90FF, #4169E1)',
+  borderRadius: '50%',
+  zIndex: 0,
+});
+
+const StyledTextField = styled(TextField)(({ theme }) => ({
+  '& .MuiOutlinedInput-root': {
+    '& fieldset': {
+      borderColor: '#1E90FF',
+      borderWidth: '2px',
+    },
+    '&:hover fieldset': {
+      borderColor: '#4169E1',
+    },
+    '&.Mui-focused fieldset': {
+      borderColor: '#1E90FF',
+    },
+  },
+  '& .MuiInputBase-input': {
+    padding: '10px',
+  },
+}));
+
+const StyledButton = styled(Button)(({ theme }) => ({
+  mt: 3,
+  mb: 2,
+  height: '50px',
+  borderRadius: '8px',
+  textTransform: 'none',
+  fontSize: '18px',
+  background: 'linear-gradient(90deg, #1E90FF, #4169E1)',
+  '&:hover': {
+    background: 'linear-gradient(90deg, #4169E1, #1E90FF)',
+  },
+}));
+
 export function Login() {
-  // Zustandsvariablen für Formulardaten, Fehler, Snackbar und Passwortsichtbarkeit
-  const [formData, setFormData] = useState({ email: "", password: "" });
-  const [errors, setErrors] = useState({ email: "", password: "" });
+  const [formData, setFormData] = useState({ email: '', password: '' });
+  const [errors, setErrors] = useState({ email: '', password: '' });
   const [showPassword, setShowPassword] = useState(false);
   const [openSnackbar, setOpenSnackbar] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState("");
-  const [snackbarType, setSnackbarType] = useState("success");
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarType, setSnackbarType] = useState('success');
   const navigate = useNavigate();
   const { setUser } = useAuth();
 
-  // Überprüft, ob bereits ein Token im lokalen Speicher vorhanden ist
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem('token');
     if (token) {
       try {
-        const decodedToken = jwtDecode(token); // Dekodiert das Token, um Benutzerdaten zu extrahieren
-        console.log("Decoded token:", decodedToken);
+        const decodedToken = jwtDecode(token);
+        console.log('Decoded token:', decodedToken);
       } catch (error) {
-        console.error("Error decoding token:", error); // Fehlerbehandlung falls das Token ungültig ist
+        console.error('Error decoding token:', error);
       }
     }
   }, []);
 
-  // Schließt das Snackbar für Rückmeldungen
   const handleSnackbarClose = () => {
     setOpenSnackbar(false);
   };
 
-  // Behandelt Änderungen der Formulareingaben
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value })); // Formulardaten aktualisieren
-    setErrors((prev) => ({ ...prev, [name]: "" })); // Fehlernachricht zurücksetzen
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    setErrors((prev) => ({ ...prev, [name]: '' }));
   };
 
-  // Behandelt die Formularübermittlung und validiert die Eingaben
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validierung der Formulareingaben
     const newErrors = {};
-    if (!formData.email) newErrors.email = "Email ist erforderlich";
-    if (!formData.password) newErrors.password = "Passwort ist erforderlich";
-    else if (formData.password.length < 6)
-      newErrors.password = "Passwort muss mindestens 6 Zeichen lang sein";
+    if (!formData.email) newErrors.email = 'Email ist erforderlich';
+    if (!formData.password) newErrors.password = 'Passwort ist erforderlich';
+    else if (formData.password.length < 6) newErrors.password = 'Passwort muss mindestens 6 Zeichen lang sein';
 
     if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors); // Fehler setzen, wenn Eingaben ungültig sind
+      setErrors(newErrors);
       return;
     }
 
-
-    // E-Mail in Kleinbuchstaben umwandeln
-  const dataToSubmit = {
-    email: formData.email.toLowerCase(),
-    password: formData.password,
-  };
+    const dataToSubmit = {
+      email: formData.email.toLowerCase(),
+      password: formData.password,
+    };
 
     try {
-      const data = await loginUser(dataToSubmit); // Versucht, den Benutzer mit den Formulardaten anzumelden
+      const data = await loginUser(dataToSubmit);
 
       if (data.success) {
-        localStorage.setItem("token", data.token); // Speichert das Token im lokalen Speicher
-        const decodedUser = jwtDecode(data.token); // Dekodiert das Token, um Benutzerdaten zu extrahieren
-        const email = decodedUser.sub.split("@")[0];
-        setUser({ token: data.token, email: email ?? "" }); // Benutzerstatus global im Kontext aktualisieren
+        localStorage.setItem('token', data.token);
+        const decodedUser = jwtDecode(data.token);
+        const email = decodedUser.sub.split('@')[0];
+        setUser({ token: data.token, email: email ?? '' });
 
-        setSnackbarMessage("Login erfolgreich!"); // Erfolgreiche Anmeldung
-        setSnackbarType("success");
-        setOpenSnackbar(true); // Zeigt das Snackbar mit Erfolgsmeldung an
+        setSnackbarMessage('Login erfolgreich!');
+        setSnackbarType('success');
+        setOpenSnackbar(true);
 
         setTimeout(() => {
-          navigate("/"); // Weiterleitung zum Dashboard nach erfolgreichem Login
+          navigate('/');
         }, 1500);
       } else {
-        throw new Error("Ungültige Anmeldedaten"); // Fehler bei ungültigen Anmeldedaten
+        throw new Error('Ungültige Anmeldedaten');
       }
     } catch (error) {
-      console.error("Fehler beim Login:", error);
-      setSnackbarMessage("Login fehlgeschlagen! Bitte versuche es später erneut."); // Fehlernachricht im Snackbar
-      setSnackbarType("error");
+      console.error('Fehler beim Login:', error);
+      setSnackbarMessage('Login fehlgeschlagen! Bitte versuche es später erneut.');
+      setSnackbarType('error');
       setOpenSnackbar(true);
     }
   };
 
-  // Umschalten der Sichtbarkeit des Passworts
   const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword); // Passwort Sichtbarkeit umschalten
+    setShowPassword(!showPassword);
   };
 
   return (
-    <Container component="main" maxWidth="xs">
-      <Grid container justifyContent="center" alignItems="center" height="100vh">
+    <Container component="main" maxWidth="sm">
+      <Grid container justifyContent="center" alignItems="center">
         <Grid item>
-          <StyledPaper elevation={6}>
-            <Typography component="h1" variant="h5" gutterBottom textAlign="center">
+          <StyledPaper height="100%" style={{ paddingTop: "10rem", paddingBottom: "5rem" }} elevation={6}>
+            <Blob />
+            <Typography
+              component="h1"
+              variant="h4"
+              gutterBottom
+              textAlign="center"
+              style={{ position: 'absolute', left: "1rem", top: "1rem", zIndex: 1, color: '#fff' }}
+            >
               Login
             </Typography>
-            <Form onSubmit={handleSubmit} noValidate>
-              {/* Benutzername Eingabefeld */}
-              <TextField
+            <StyledForm onSubmit={handleSubmit} noValidate>
+              <StyledTextField
                 margin="normal"
                 required
                 fullWidth
                 id="email"
-                label="Email Address"
+                label="Email"
                 name="email"
                 autoComplete="off"
                 value={formData.email}
@@ -158,14 +197,13 @@ export function Login() {
                   ),
                 }}
               />
-              {/* Passwort Eingabefeld */}
-              <TextField
+              <StyledTextField
                 margin="normal"
                 required
                 fullWidth
                 name="password"
-                label="Passwort"
-                type={showPassword ? "text" : "password"}
+                label="Password"
+                type={showPassword ? 'text' : 'password'}
                 id="password"
                 value={formData.password}
                 onChange={handleChange}
@@ -179,63 +217,43 @@ export function Login() {
                   ),
                   endAdornment: (
                     <InputAdornment position="end">
-                      <IconButton
-                        aria-label="toggle password visibility"
-                        onClick={togglePasswordVisibility}
-                        edge="end"
-                      >
+                      <IconButton aria-label="toggle password visibility" onClick={togglePasswordVisibility} edge="end">
                         {showPassword ? <FaEyeSlash /> : <FaEye />}
                       </IconButton>
                     </InputAdornment>
                   ),
                 }}
               />
-              {/* Absenden Button */}
-              <Button
-                type="submit"
-                fullWidth
-                variant="contained"
-                sx={{
-                  mt: 3,
-                  mb: 2,
-                  height: "48px",
-                  borderRadius: "8px",
-                  textTransform: "none",
-                  fontSize: "16px",
-                }}
-              >
+              <StyledButton type="submit" fullWidth variant="contained" style={{ color: '#fff' }}>
                 Login
-              </Button>
-              {/* Passwort vergessen Link */}
+              </StyledButton>
               <Grid container justifyContent="center">
                 <Grid item>
-                  <NavLink to="/forgot-password" style={{ textDecoration: "none" }}>
+                  <NavLink to="/forgot-password" style={{ textDecoration: 'none' }}>
                     <Typography variant="body2" color="primary">
-                      Passwort vergessen?
+                      Forgot Password?
                     </Typography>
                   </NavLink>
                 </Grid>
               </Grid>
-              {/* Registrieren Link */}
               <Grid container justifyContent="center">
                 <Grid item>
-                  <NavLink to="/register" style={{ textDecoration: "none" }}>
+                  <NavLink to="/register" style={{ textDecoration: 'none' }}>
                     <Typography variant="body2" color="primary">
-                      Hast du noch kein Konto? Registrieren
+                      Don’t have an account? Sign Up
                     </Typography>
                   </NavLink>
                 </Grid>
               </Grid>
-            </Form>
+            </StyledForm>
           </StyledPaper>
         </Grid>
       </Grid>
-      {/* Snackbar für Feedback */}
       <Snackbar
         open={openSnackbar}
         autoHideDuration={6000}
         onClose={handleSnackbarClose}
-        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
       >
         <Alert onClose={handleSnackbarClose} severity={snackbarType}>
           {snackbarMessage}
