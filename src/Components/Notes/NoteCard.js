@@ -102,23 +102,48 @@ const NoteCard = ({ note, expandedNoteIds, handleToggleContent, handleDelete, na
                     </Typography>
 
                     <Typography variant="body2" color="textSecondary">
-                    Erstellt am: {new Date(note.createdAt).toLocaleString()}
+                        Erstellt am: {new Date(note.createdAt).toLocaleString()}
                     </Typography>
                 </CardContent>
 
-                <div style={{ display: "flex", justifyContent: "flex-end", padding: "10px" }}>
-                    <Button
-                        variant="outlined"
-                        color="primary"
-                        onClick={() => navigate(`/edit-note/${note.id}`)}
-                        style={{ marginRight: "10px" }}
-                    >
-                        Edit
-                    </Button>
-                    <Button variant="outlined" color="secondary" onClick={() => handleDelete(note.id)}>
-                        Delete
-                    </Button>
-                </div>
+                {/* Buttons: Share links, Edit/Delete rechts */}
+<div style={{ display: "flex", gap: "5px" }}>
+    {/* Share Button links */}
+    <Button
+        variant="contained"
+        sx={{ 
+            cursor: "pointer", 
+            backgroundColor: "#ffffff", 
+            color: "#000000",
+            "&:hover": {
+                backgroundColor: "#f0f0f0"
+            }
+        }}
+    >
+        Share
+    </Button>
+
+    {/* Edit + Delete Buttons rechts */}
+    <div>
+        <Button
+            variant="outlined"
+            color="primary"
+            onClick={() => navigate(`/edit-note/${note.id}`)}
+            style={{ marginRight: "10px" }}
+        >
+            Edit
+        </Button>
+
+        <Button
+            variant="outlined"
+            color="secondary"
+            onClick={() => handleDelete(note.id)}
+        >
+            Delete
+        </Button>
+    </div>
+</div>
+
             </Card>
 
             {/* Detail Dialog */}
